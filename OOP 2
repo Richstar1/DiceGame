@@ -1,0 +1,692 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DiceGame
+{
+
+    public class Die
+    {
+        private Random random;
+        private int currentvalue;
+
+        public Die()
+        {
+            random = new Random();
+        }
+
+        // Roll the die and return the result
+        public int Roll()
+        {
+            currentvalue = random.Next(1, 7);
+            return currentvalue;
+        }
+    }
+    public class Player
+    {
+        private string Name;
+        private int Total;
+
+        public Player(string _name)
+        {
+            Name = _name;
+            Total = 0;
+        }
+
+        public void CalculateScore(int _diceResult)
+        {
+            Total = Total + _diceResult;
+        }
+
+        public void ResetScore()
+        {
+            Total = 0;
+        }
+        public int GetScore()
+        {
+            return Total;
+        }
+        public string GetPlayerName()
+        {
+            return Name;
+        }
+    }
+    public class ScoreBoard
+    {
+        public string Game;
+        public string Player1Name;
+        public string Player2Name;
+        public int Player1Score;
+        public int Player2Score;
+        public string Winner;
+
+        public ScoreBoard()
+        {
+            Game = "";
+            Player1Name = "";
+            Player2Name = "";
+            Player1Score = 0;
+            Player2Score = 0;
+        }
+
+        public void UpdateScoreBoard(string _game, string _player1Name, string _player2Name, int _player1Score, int _player2Score, string _winner)
+        {
+            Game = _game;
+            Player1Name = _player1Name;
+            Player2Name = _player2Name;
+            Player1Score = _player1Score;
+            Player2Score = _player2Score;
+            Winner = _winner;
+        }
+
+
+
+    }
+    public class Statistics
+    {
+        private static Statistics instance;
+        public ScoreBoard[] scoreBoards;
+        public int GameCount = 0;
+
+        private Statistics()
+        {
+            scoreBoards = new ScoreBoard[10000]; // Adjust the size as needed
+            for (int i = 0; i < scoreBoards.Length; i++)
+            {
+                scoreBoards[i] = new ScoreBoard(); // Initialize each element of the array
+            }
+        }
+
+        public static Statistics Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new Statistics();
+                }
+                return instance;
+            }
+        }
+    }
+    public class Game
+    {
+        string choice;
+        bool exit = false;
+
+        public void GameStarter()
+        {
+            do
+            {
+                Console.WriteLine("Main Menu:");
+                Console.WriteLine("1. Play Sevens Out");
+                Console.WriteLine("2. Play Three or More");
+                Console.WriteLine("3. View Statistics");
+                Console.WriteLine("4. Testing Class");
+                Console.WriteLine("5. Exit");
+                Console.Write("Enter your choice: ");
+                choice = Console.ReadLine();
+
+                switch (choice)
+                {
+                    case "1":
+                        // Implement Sevens Out dice game
+                        SevensOutGame sevensOutGame = new SevensOutGame();
+                        sevensOutGame.Play();
+                        break;
+                    case "2":
+                        // Implement Three or More dice game
+                        ThreeOrMoreGame threeOrMoreGame = new ThreeOrMoreGame();
+                        threeOrMoreGame.Play();
+                        break;
+                    case "3":
+                        Statistics stats = Statistics.Instance;
+                        Console.WriteLine("--------------------------------------------------------------------");
+                        Console.WriteLine("Game\t1st Player\t2nd Player\t1st Player Score\t2nd Player Score\tWinner");
+                        Console.WriteLine("--------------------------------------------------------------------");
+                        for (int i = 0; i < stats.GameCount; i++)
+                        {
+                            Console.WriteLine(stats.scoreBoards[i].Game + "\t" + stats.scoreBoards[i].Player1Name + "\t" + stats.scoreBoards[i].Player2Name + "\t" + stats.scoreBoards[i].Player1Score + "\t" + stats.scoreBoards[i].Player2Score + "\t" + stats.scoreBoards[i].Winner);
+                        }
+                        Console.WriteLine("--------------------------------------------------------------------");
+                        break;
+                    case "4":
+                        Testing test = new Testing();
+                        test.TestSevensOut();
+                        test.TestThreeOrMore();
+                        break;
+                    case "5":
+                        exit = true;
+                        break;
+                    default:
+                        Console.WriteLine("Invalid choice. Please try again.");
+                        break;
+                }
+            } while (!exit);
+        }
+    }
+    public class SevensOutGame
+    {
+        private Die die1;
+
+        public SevensOutGame()
+        {
+            die1 = new Die();
+        }
+
+        public int TestRoll(int rollResult1, int rollResult2)
+        {
+            int total = rollResult1 + rollResult2;
+            if (total == 7)
+            {
+                // This indicates a win in Sevens Out, so you can handle this case accordingly.
+                // For testing purposes, you may just return the total.
+                return total;
+            }
+            else
+            {
+                // Return the total of the roll
+                return total;
+            }
+        }
+        public void Play()
+        {
+            Statistics stats = Statistics.Instance;
+        a:
+            Console.WriteLine("Welcome to the Sevens Out game!");
+            Console.WriteLine("Do you want to play against the computer or another player?");
+            Console.WriteLine("1. Against Computer");
+            Console.WriteLine("2. Against Another Player");
+            Console.Write("Enter your choice: ");
+            string gameChoice = Console.ReadLine();
+            Player ply1;
+            Player ply2;
+            if (gameChoice == "1")
+            {
+                Console.WriteLine("Welcome to the Sevens Out game!");
+                Console.WriteLine("Enter First Player Name.");
+                string PlayerName = Console.ReadLine();
+                ply1 = new Player(PlayerName);
+                ply2 = new Player("Computer");
+            }
+            else if (gameChoice == "2")
+            {
+                Console.WriteLine("Enter 1st Player Name.");
+                string PlayerName = Console.ReadLine();
+                ply1 = new Player(PlayerName);
+                Console.WriteLine("Enter 2nd Player Name.");
+                PlayerName = Console.ReadLine();
+                ply2 = new Player(PlayerName);
+            }
+            else
+            {
+                Console.WriteLine("\nInvalid Choice.\n");
+                goto a;
+            }
+            bool playAgain = true;
+
+            while (playAgain)
+            {
+                int player1Total = 0;
+                int player2Total = 0;
+                do
+                {
+                    player1Total = 0;
+                    player2Total = 0;
+
+                    Console.WriteLine(ply1.GetPlayerName() + "'s Turn ");
+                    Console.WriteLine("press Enter to roll the dice.");
+                    Console.ReadLine();
+
+
+                    int rollResult1 = die1.Roll();
+                    int rollResult2 = die1.Roll();
+                    Console.WriteLine(ply1.GetPlayerName() + " rolled. (" + rollResult1 + ", " + rollResult2 + ")");
+                    if (rollResult1 == rollResult2)
+                    {
+                        int sameRollSum = rollResult1 + rollResult2;
+                        int doubleRollSum = (rollResult1 + rollResult2) * 2;
+                        player1Total = doubleRollSum;
+                    }
+                    else
+                    {
+                        int rollSum = rollResult1 + rollResult2;
+                        player1Total = rollSum;
+
+                    }
+
+                    if (rollResult1 + rollResult2 == 7)
+                    {
+                        goto s;
+                    }
+
+                    ply1.CalculateScore(player1Total);
+
+                    if (gameChoice == "1")
+                    {
+                        Console.WriteLine(ply2.GetPlayerName() + "'s Turn");
+                    }
+                    else if (gameChoice == "2")
+                    {
+                        Console.WriteLine(ply2.GetPlayerName() + "'s Turn ");
+                        Console.WriteLine("press Enter to roll the dice.");
+                        Console.ReadLine();
+
+                    }
+                    else
+                    {
+                        Console.WriteLine("\nInvalid Choice.\n");
+                        goto a;
+                    }
+
+
+                    rollResult1 = die1.Roll();
+                    rollResult2 = die1.Roll();
+
+                    Console.WriteLine(ply2.GetPlayerName() + " rolled. (" + rollResult1 + ", " + rollResult2 + ")");
+
+                    if (rollResult1 == rollResult2)
+                    {
+                        int sameRollSum = rollResult1 + rollResult2;
+                        int doubleRollSum = (rollResult1 + rollResult2) * 2;
+                        player2Total = doubleRollSum;
+                    }
+                    else
+                    {
+                        int rollSum = rollResult1 + rollResult2;
+                        player2Total = rollSum;
+
+                    }
+
+                    if (rollResult1 + rollResult2 == 7)
+                    {
+                        goto s;
+                    }
+
+                    ply2.CalculateScore(player2Total);
+
+                s:
+                    Console.WriteLine(ply1.GetPlayerName() + "'s Score : " + ply1.GetScore());
+                    Console.WriteLine(ply2.GetPlayerName() + "'s Score : " + ply2.GetScore());
+
+                } while (player1Total != 7 && player2Total != 7);
+
+
+
+                if (ply1.GetScore() > ply2.GetScore())
+                {
+                    stats.scoreBoards[stats.GameCount].UpdateScoreBoard("Sevens Out", ply1.GetPlayerName(), ply2.GetPlayerName(), ply1.GetScore(), ply2.GetScore(), ply1.GetPlayerName());
+                    stats.GameCount++;
+                    Console.WriteLine(ply1.GetPlayerName() + " wins.");
+                }
+                else if (ply1.GetScore() < ply2.GetScore())
+                {
+                    stats.scoreBoards[stats.GameCount].UpdateScoreBoard("Sevens Out", ply1.GetPlayerName(), ply2.GetPlayerName(), ply1.GetScore(), ply2.GetScore(), ply2.GetPlayerName());
+                    stats.GameCount++;
+                    Console.WriteLine(ply2.GetPlayerName() + " wins.");
+                }
+                else
+                {
+                    stats.scoreBoards[stats.GameCount].UpdateScoreBoard("Sevens Out", ply1.GetPlayerName(), ply2.GetPlayerName(), ply1.GetScore(), ply2.GetScore(), "Game is Draw.");
+                    stats.GameCount++;
+                    Console.WriteLine("Game is Draw.");
+                }
+
+                Console.WriteLine("Do you want to play another round? (yes/no): ");
+                string playAnotherRound = Console.ReadLine();
+                if (playAnotherRound.ToLower() == "yes")
+                {
+                    playAgain = true;
+                    ply1.ResetScore();
+                    ply2.ResetScore();
+                }
+                else
+                {
+                    playAgain = false;
+                }
+
+            }
+        }
+    }
+    public class ThreeOrMoreGame
+    {
+        Statistics stats = Statistics.Instance;
+        private Die die1;
+
+        public ThreeOrMoreGame()
+        {
+            die1 = new Die();
+        }
+        public int TestRoll(int[] rollResults)
+        {
+            int score = 0;
+            Array.Sort(rollResults); // Sort the array to simplify checking for consecutive numbers
+
+            // Check for three or more of the same number
+            for (int i = 0; i < rollResults.Length - 2; i++)
+            {
+                if (rollResults[i] == rollResults[i + 1] && rollResults[i] == rollResults[i + 2])
+                {
+                    score += 3; // Increment score by 3 for three of a kind
+                    i += 2; // Skip the next two numbers since they've already been counted
+                }
+            }
+
+            // Check for consecutive numbers (straight)
+            bool isStraight = true;
+            for (int i = 0; i < rollResults.Length - 1; i++)
+            {
+                if (rollResults[i] != rollResults[i + 1] - 1)
+                {
+                    isStraight = false;
+                    break;
+                }
+            }
+            if (isStraight)
+            {
+                score += 5; // Increment score by 5 for a straight
+            }
+
+            return score;
+        }
+
+        public void Play()
+        {
+        a:
+            Console.WriteLine("Welcome to the Three or More dice game!");
+            Console.WriteLine("Do you want to play against the computer or another player?");
+            Console.WriteLine("1. Against Computer");
+            Console.WriteLine("2. Against Another Player");
+            Console.Write("Enter your choice: ");
+            int gameChoice = int.Parse(Console.ReadLine());
+            Player ply1;
+            Player ply2;
+            if (gameChoice == 1)
+            {
+                Console.WriteLine("Welcome to the Sevens Out game!");
+                Console.WriteLine("Enter First Player Name.");
+                string PlayerName = Console.ReadLine();
+                ply1 = new Player(PlayerName);
+                ply2 = new Player("Computer");
+            }
+            else if (gameChoice == 2)
+            {
+                Console.WriteLine("Enter 1st Player Name.");
+                string PlayerName = Console.ReadLine();
+                ply1 = new Player(PlayerName);
+                Console.WriteLine("Enter 2nd Player Name.");
+                PlayerName = Console.ReadLine();
+                ply2 = new Player(PlayerName);
+            }
+            else
+            {
+                Console.WriteLine("\nInvalid Choice.\n");
+                goto a;
+            }
+            bool playAgain = true;
+
+            while (playAgain)
+            {
+                int player1Total = 0;
+                int player2Total = 0;
+                do
+                {
+                    player1Total = 0;
+                    player2Total = 0;
+
+                    Console.WriteLine(ply1.GetPlayerName() + "'s Turn ");
+                    Console.WriteLine("press Enter to roll the dice.");
+                    Console.ReadLine();
+
+                s:
+
+                    bool isDiceMatch = false;
+
+                    int[] rollResult1 = new int[5];
+                    string DiceOutput = "";
+                    for (int i = 0; i < 5; i++)
+                    {
+                        rollResult1[i] = die1.Roll();
+                        DiceOutput = DiceOutput + rollResult1[i] + ", ";
+                        if (i > 0 && !isDiceMatch)
+                        {
+                            for (int j = 0; j <= i; j++)
+                            {
+                                for (int k = j + 1; k <= i; k++)
+                                {
+                                    if (rollResult1[j] == rollResult1[k])
+                                    {
+                                        //DiceOutput = DiceOutput.Substring(DiceOutput.Length - 2);
+                                        Console.WriteLine(ply1.GetPlayerName() + " rolled. (" + DiceOutput + ")");
+                                        Console.WriteLine("Do you want to rethrow all dices? (yes/no): ");
+                                        string rethrow = Console.ReadLine();
+                                        if (rethrow.ToLower() == "yes")
+                                        {
+                                            goto s;
+                                        }
+                                        else
+                                        {
+                                            isDiceMatch = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    Console.WriteLine(ply1.GetPlayerName() + " rolled. (" + rollResult1[0] + ", " + rollResult1[1] + ", " + rollResult1[2] + ", " + rollResult1[3] + ", " + rollResult1[4] + ")");
+
+                    int DiceMatchCount = 0;
+                    for (int i = 0; i < 3; i++)
+                    {
+                        DiceMatchCount = 0;
+                        for (int j = 0; j < 5; j++)
+                        {
+                            if (rollResult1[i] == rollResult1[j])
+                            {
+                                DiceMatchCount++;
+                            }
+                        }
+                        if (DiceMatchCount >= 3)
+                        {
+                            break;
+                        }
+                    }
+
+                    if (DiceMatchCount == 3)
+                    {
+                        player1Total = 3;
+                    }
+                    else if (DiceMatchCount == 4)
+                    {
+                        player1Total = 6;
+                    }
+                    else if (DiceMatchCount == 5)
+                    {
+                        player1Total = 12;
+                    }
+                    else
+                    {
+                        player1Total = 0;
+
+                    }
+                    ply1.CalculateScore(player1Total);
+
+                    if (ply1.GetScore() >= 20)
+                    {
+                        Console.WriteLine(ply1.GetPlayerName() + "'s Score : " + ply1.GetScore());
+                        Console.WriteLine(ply2.GetPlayerName() + "'s Score : " + ply2.GetScore());
+
+                        stats.scoreBoards[stats.GameCount].UpdateScoreBoard("Three or More", ply1.GetPlayerName(), ply2.GetPlayerName(), ply1.GetScore(), ply2.GetScore(), ply1.GetPlayerName());
+                        stats.GameCount++;
+
+                        Console.WriteLine(ply1.GetPlayerName() + " wins.");
+                        goto z;
+                    }
+                    if (gameChoice == 1)
+                    {
+                        Console.WriteLine(ply2.GetPlayerName() + "'s Turn");
+                    }
+                    else if (gameChoice == 2)
+                    {
+                        Console.WriteLine(ply2.GetPlayerName() + "'s Turn ");
+                        Console.WriteLine("press Enter to roll the dice.");
+                        Console.ReadLine();
+
+                    }
+                    else
+                    {
+                        Console.WriteLine("\nInvalid Choice.\n");
+                        goto a;
+                    }
+                d:
+
+                    isDiceMatch = false;
+
+                    int[] rollResult2 = new int[5];
+                    DiceOutput = "";
+
+                    for (int i = 0; i < 5; i++)
+                    {
+                        rollResult2[i] = die1.Roll();
+                        DiceOutput = DiceOutput + rollResult2[i] + ", ";
+
+                        if (i > 0 && !isDiceMatch)
+                        {
+                            for (int j = 0; j <= i; j++)
+                            {
+                                for (int k = j + 1; k <= i; k++)
+                                {
+                                    if (rollResult2[j] == rollResult2[k])
+                                    {
+                                        //DiceOutput = DiceOutput.Substring(DiceOutput.Length - 2);
+                                        Console.WriteLine(ply2.GetPlayerName() + " rolled. (" + DiceOutput + ")");
+                                        Console.WriteLine("Do you want to rethrow all dices? (yes/no): ");
+                                        string rethrow = Console.ReadLine();
+                                        if (rethrow.ToLower() == "yes")
+                                        {
+                                            goto d;
+                                        }
+                                        else
+                                        {
+                                            isDiceMatch = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    Console.WriteLine(ply2.GetPlayerName() + " rolled. (" + rollResult2[0] + ", " + rollResult2[1] + ", " + rollResult2[2] + ", " + rollResult2[3] + ", " + rollResult2[4] + ")");
+
+                    DiceMatchCount = 0;
+                    for (int i = 0; i < 3; i++)
+                    {
+                        DiceMatchCount = 0;
+                        for (int j = 0; j < 5; j++)
+                        {
+                            if (rollResult2[i] == rollResult2[j])
+                            {
+                                DiceMatchCount++;
+                            }
+                        }
+                        if (DiceMatchCount >= 3)
+                        {
+                            break;
+                        }
+                    }
+
+                    if (DiceMatchCount == 3)
+                    {
+                        player2Total = 3;
+                    }
+                    else if (DiceMatchCount == 4)
+                    {
+                        player2Total = 6;
+                    }
+                    else if (DiceMatchCount == 5)
+                    {
+                        player2Total = 12;
+                    }
+                    else
+                    {
+                        player2Total = 0;
+
+                    }
+                    ply2.CalculateScore(player2Total);
+
+                    if (ply2.GetScore() >= 20)
+                    {
+                        Console.WriteLine(ply1.GetPlayerName() + "'s Score : " + ply1.GetScore());
+                        Console.WriteLine(ply2.GetPlayerName() + "'s Score : " + ply2.GetScore());
+
+                        stats.scoreBoards[stats.GameCount].UpdateScoreBoard("Three or More", ply1.GetPlayerName(), ply2.GetPlayerName(), ply1.GetScore(), ply2.GetScore(), ply2.GetPlayerName());
+                        stats.GameCount++;
+
+                        Console.WriteLine(ply2.GetPlayerName() + " wins.");
+                        goto z;
+                    }
+
+                    Console.WriteLine(ply1.GetPlayerName() + "'s Score : " + ply1.GetScore());
+                    Console.WriteLine(ply2.GetPlayerName() + "'s Score : " + ply2.GetScore());
+
+                } while (ply1.GetScore() < 20 && ply2.GetScore() < 20);
+            z:
+                Console.WriteLine("Do you want to play another round? (yes/no): ");
+                string playAnotherRound = Console.ReadLine();
+                if (playAnotherRound.ToLower() == "yes")
+                {
+                    playAgain = true;
+                    ply1.ResetScore();
+                    ply2.ResetScore();
+                }
+                else
+                {
+                    playAgain = false;
+                }
+            }
+        }
+    }
+    public class Testing
+    {
+        public void TestSevensOut()
+        {
+            // Create a SevensOutGame object
+            SevensOutGame sevensOutGame = new SevensOutGame();
+
+            // Perform the test
+            // Example: You can simulate a game round and check if the total is equal to 7 using Debug.Assert
+            // For example, if you roll 2 and 5, the total should be 7
+            int total = sevensOutGame.TestRoll(2, 5);
+            Debug.Assert(total == 7, "Sevens Out test failed: Total is not equal to 7.");
+
+            // Add more tests as needed
+        }
+
+        public void TestThreeOrMore()
+        {
+            // Create a ThreeOrMoreGame object
+            ThreeOrMoreGame threeOrMoreGame = new ThreeOrMoreGame();
+
+            // Perform the test
+            // Example: You can simulate a game round and check if the scores are set and added correctly
+            // For example, if you roll 1, 2, 2, 2, 3, you should get a score of 3
+            int score = threeOrMoreGame.TestRoll(new int[] { 1, 2, 2, 2, 3 });
+            Debug.Assert(score == 3, "Three or More test failed: Score is not correct.");
+
+            // Add more tests as needed
+        }
+    }
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Game GS = new Game();
+            GS.GameStarter();
+        }
+    }
+}
+
